@@ -1,8 +1,11 @@
 package cn.hutool.core.io;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -19,6 +22,62 @@ import cn.hutool.core.util.CharsetUtil;
  * @author Looly
  */
 public class FileUtilTest {
+
+	public static List<String> reqIdList = Arrays.asList(
+			"UAFYRZ2020030204160432930058",
+			"UAFYRZ2020030204160443932379",
+			"UAFYRZ2020030204160440931694",
+			"UAFYRZ2020030204160455935211",
+			"UAFYRZ2020030204160438931420",
+			"UAFYRZ2020030204160438931428",
+			"UAFYRZ2020030204160438931256",
+			"UAFYRZ2020030204160438931264",
+			"UAFYRZ2020030204160455935161",
+			"UAFYRZ2020030204160454934841",
+			"UAFYRZ2020030204160438931252",
+			"UAFYRZ2020030204160440931734",
+			"UAFYRZ2020030204160455935179",
+			"UAFYRZ2020030204160455935187",
+			"UAFYRZ2020030204160441931974",
+			"UAFYRZ2020030204160454934869",
+			"UAFYRZ2020030204160443932339",
+			"UAFYRZ2020030204160443932357",
+			"UAFYRZ2020030204160454934857",
+			"UAFYRZ2020030204160456935406",
+			"UAFYRZ2020030204160452934476",
+			"UAFYRZ2020030204160448933592",
+			"UAFYRZ2020030204160441931986",
+			"UAFYRZ2020030204160437931127",
+			"UAFYRZ2020030204160448933605",
+			"UAFYRZ2020030204160441931999",
+			"UAFYRZ2020030204160456935380",
+			"UAFYRZ2020030204160456935384",
+			"UAFYRZ2020030204160454934967",
+			"UAFYRZ2020030204160454934968",
+			"UAFYRZ2020030204160435930696",
+			"UAFYRZ2020030204160435930698",
+			"UAFYRZ2020030204160448933606",
+			"UAFYRZ2020030204160433930392",
+			"UAFYRZ2020030204160445932951"
+	);
+
+	@Test
+	public void fileReadLinesTest(){
+		File file = new File("E:/uaf-baihangcredit-provider.2020-03-02.log");
+		//File file = new File("E:/1.txt");
+		LineHandler lineHandler = new LineHandler() {
+			@Override
+			public void handle(String line) {
+				for(String reqId : reqIdList){
+					String temp = "d3ReportLoanInfo前端接口报文：{\"reqID\":\"" + reqId +"\"";
+					if(line.contains(temp)){
+						System.out.println(line.substring(line.indexOf("d3ReportLoanInfo前端接口报文：") + 23));
+					}
+				}
+			}
+		};
+		FileUtil.readLines(file, StandardCharsets.UTF_8,lineHandler);
+	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void fileTest() {
@@ -239,9 +298,16 @@ public class FileUtilTest {
 	}
 
 	@Test
-	@Ignore
 	public void loopFilesTest() {
-		List<File> files = FileUtil.loopFiles("d:/");
+
+		FileFilter fileFilter = new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return FileUtil.readUtf8String(pathname).contains("addon-resizer");
+			}
+		};
+
+		List<File> files = FileUtil.loopFiles("F:\\idea_projects\\myprojects\\kube-prometheus\\manifests\\setup", fileFilter);
 		for (File file : files) {
 			Console.log(file.getPath());
 		}
